@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+
+<h2>Login</h2>
+
+<!-- Formulario de login -->
+<form th:action="@{/sendLogin}" method="post">
+    <div>
+        <label for="username">Usuario:</label>
+        <input type="text" id="username" name="username">
+    </div>
+    <div>
+        <label for="password">Contraseña:</label>
+        <input type="password" id="password" name="password">
+    </div>
+    <div>
+        <button type="submit">Iniciar sesión</button>
+    </div>
+</form>
+
+<!-- Mostrar el mensaje de estado (si existe) -->
+<div th:if="${message}" style="color:red;">
+    <p th:text="${message}"></p>
+</div>
+
+</body>
+</html>
