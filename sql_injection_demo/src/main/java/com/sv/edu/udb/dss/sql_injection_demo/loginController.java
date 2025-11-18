@@ -7,6 +7,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class loginController {
@@ -27,26 +30,36 @@ public class loginController {
         return "login";
     }
 
-    @PostMapping("/sendLogin")
-    public String authenticateUser(@RequestParam String username, @RequestParam String password) {
+   @PostMapping("/sendLogin")
+    public String authenticateUser(@RequestParam String username,
+                                @RequestParam String password,
+                                RedirectAttributes redirectAttrs) {
+
         System.out.println("[AUTH] Se recibió POST /sendLogin");
-        System.out.println("[AUTH] Usuario: " + username);
-        System.out.println("[AUTH] Contraseña: " + password);
 
-        // Consulta SQL básica (manteniendo la lógica sencilla)
-        String query = "SELECT COUNT(*) FROM users WHERE username = '" + username + 
-                    "' AND password = '" + password + "'";
+        try {
+            String query = "SELECT * FROM users WHERE username = '" + username +
+                        "' AND password = '" + password + "'";
+            System.out.println("[QUERY] " + query);
 
-        System.out.println("[QUERY] " + query);
+            List<Map<String, Object>> results = jdbcTemplate.queryForList(query);
 
-        Integer count = jdbcTemplate.queryForObject(query, Integer.class);
+            redirectAttrs.addFlashAttribute("dbQuery", query);
+            redirectAttrs.addFlashAttribute("dbResult", results);
 
-        if (count != null && count > 0) {
-            System.out.println("[AUTH] Credenciales válidas → redirigiendo a /login?state=success");
-            return "redirect:/login?state=success";
-        } else {
-            System.out.println("[AUTH] Credenciales inválidas → redirigiendo a /login?state=failed");
-            return "redirect:/login?state=failed";
+            if (!results.isEmpty()) {
+                System.out.println("[AUTH] Credenciales válidas");
+                return "redirect:/login?state=success";
+            } else {
+                System.out.println("[AUTH] Credenciales inválidas");
+                return "redirect:/login?state=failed";
+            }
+
+        } catch (Exception ex) {
+            System.out.println("[DB ERROR] " + ex.getMessage());
+            redirectAttrs.addFlashAttribute("dbQuery", "Error ejecutando query");
+            redirectAttrs.addFlashAttribute("dbResult", ex.getMessage());
+            return "redirect:/login?state=dberror";
         }
     }
 }
