@@ -23,10 +23,25 @@
     </div>
 </form>
 
+<div th:if="${dbError}" style="color:red; font-weight:bold;">
+    Error en la base de datos: <span th:text="${dbError}"></span>
+</div>
+
 <!-- Mostrar el mensaje de estado (si existe) -->
 <div th:if="${message}" style="color:red;">
     <p th:text="${message}"></p>
 </div>
+
+<div th:if="${dbQuery}">
+    <strong>Query ejecutada:</strong>
+    <pre th:text="${dbQuery}"></pre>
+</div>
+
+<div th:if="${dbResult}">
+    <strong>Resultado:</strong>
+    <pre th:text="${dbResult}"></pre>
+</div>
+
 
 </body>
 </html>
